@@ -1,5 +1,6 @@
 // @deno-types="npm:chromospace"
-import * as chs from "https://esm.sh/chromospace@^0.1.x";
+// import * as chs from "https://esm.sh/chromospace@^0.1.x";
+import * as chs from "http://localhost:5173/src/main.ts";
 
 /**
  * @typedef TextFile
@@ -54,7 +55,11 @@ export default {
       Object.keys(viewConfig).length === 0;
     const vc = viewConfigNotSupplied ? defaultViewConfig : viewConfig;
 
-    chromatinScene = chs.addChunkToScene(chromatinScene, chunk, vc);
+    if (isModel) {
+      chromatinScene = chs.addModelToScene(chromatinScene, chunk, vc);
+    } else {
+      chromatinScene = chs.addChunkToScene(chromatinScene, chunk, vc);
+    }
 
     const [renderer, canvas] = chs.display(chromatinScene, {
       alwaysRedraw: false,
