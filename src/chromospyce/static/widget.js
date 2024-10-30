@@ -37,18 +37,26 @@ export default {
     console.log(viewConfig);
     const chunk = chs.load(structure.buffer, options);
 
+    // const isModel = true;
+    const isModel = "parts" in chunk; //~ ChromatinModel has .parts
+
     //~ this config specifies how the 3D model will look
-    const binsNum = chunk.bins.length;
-    const sequenceValues = Array.from({ length: binsNum }, (_, i) => i);
+    // const binsNum = chunk.bins.length;
+    // const sequenceValues = Array.from({ length: binsNum }, (_, i) => i);
+    // const defaultViewConfig = {
+    //   scale: 0.01,
+    //   color: {
+    //     values: sequenceValues,
+    //     min: 0,
+    //     max: binsNum - 1,
+    //     colorScale: "viridis",
+    //   },
+    //   links: true,
+    // };
+
     const defaultViewConfig = {
       scale: 0.01,
-      color: {
-        values: sequenceValues,
-        min: 0,
-        max: binsNum - 1,
-        colorScale: "viridis",
-      },
-      links: true,
+      color: "red",
     };
 
     const viewConfigNotSupplied = viewConfig === undefined ||
@@ -56,8 +64,11 @@ export default {
     const vc = viewConfigNotSupplied ? defaultViewConfig : viewConfig;
 
     if (isModel) {
+      console.log("model from anywidget");
+      console.log(chunk);
       chromatinScene = chs.addModelToScene(chromatinScene, chunk, vc);
     } else {
+      console.log("chunk from anywidget");
       chromatinScene = chs.addChunkToScene(chromatinScene, chunk, vc);
     }
 
