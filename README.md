@@ -59,3 +59,7 @@ Quickly test out **chromospyce** with [uv](https://docs.astral.sh/uv/):
 
 Or: [run the example in Google
 Colab](https://colab.research.google.com/drive/1EZh9HcGS3cgPF4C6eFyMm5iHGVGS4Cj_?usp=sharing).
+
+## Contributing
+Running tests:
+`uv run pytest`
