@@ -1,6 +1,5 @@
 // @deno-types="npm:chromospace"
-// import * as chs from "https://esm.sh/chromospace@^0.1.x";
-import * as chs from "http://localhost:5173/src/main.ts";
+import * as chs from "https://esm.sh/chromospace@^0.1.x";
 
 /**
  * @typedef TextFile
@@ -35,29 +34,35 @@ export default {
       console.error("suplied structure is UNDEFINED");
     }
     console.log(viewConfig);
-    const chunk = chs.load(structure.buffer, options);
+    const chunkOrModel = chs.load(structure.buffer, options);
 
     // const isModel = true;
-    const isModel = "parts" in chunk; //~ ChromatinModel has .parts
+    const isModel = "parts" in chunkOrModel; //~ ChromatinModel has .parts
 
-    //~ this config specifies how the 3D model will look
-    // const binsNum = chunk.bins.length;
-    // const sequenceValues = Array.from({ length: binsNum }, (_, i) => i);
-    // const defaultViewConfig = {
-    //   scale: 0.01,
-    //   color: {
-    //     values: sequenceValues,
-    //     min: 0,
-    //     max: binsNum - 1,
-    //     colorScale: "viridis",
-    //   },
-    //   links: true,
-    // };
-
-    const defaultViewConfig = {
+    /** @type {import("http://localhost:5173/src/main.ts").ViewConfig} */
+    let defaultViewConfig = {
       scale: 0.01,
-      color: "red",
     };
+
+    if (isModel) {
+      defaultViewConfig = {
+        scale: 0.008,
+      };
+    } else {
+      //~ this config specifies how the 3D model will look
+      const binsNum = chunkOrModel.bins.length;
+      const sequenceValues = Array.from({ length: binsNum }, (_, i) => i);
+      defaultViewConfig = {
+        scale: 0.01,
+        color: {
+          values: sequenceValues,
+          min: 0,
+          max: binsNum - 1,
+          colorScale: "viridis",
+        },
+        links: true,
+      };
+    }
 
     const viewConfigNotSupplied = viewConfig === undefined ||
       Object.keys(viewConfig).length === 0;
@@ -65,10 +70,11 @@ export default {
 
     if (isModel) {
       console.log("model from anywidget");
-      console.log(chunk);
-      chromatinScene = chs.addModelToScene(chromatinScene, chunk, vc);
+      const model = chunkOrModel;
+      chromatinScene = chs.addModelToScene(chromatinScene, model, vc);
     } else {
       console.log("chunk from anywidget");
+      const chunk = chunkOrModel;
       chromatinScene = chs.addChunkToScene(chromatinScene, chunk, vc);
     }
 
