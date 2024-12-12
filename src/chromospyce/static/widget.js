@@ -34,27 +34,49 @@ export default {
       console.error("suplied structure is UNDEFINED");
     }
     console.log(viewConfig);
-    const chunk = chs.load(structure.buffer, options);
+    const chunkOrModel = chs.load(structure.buffer, options);
 
-    //~ this config specifies how the 3D model will look
-    const binsNum = chunk.bins.length;
-    const sequenceValues = Array.from({ length: binsNum }, (_, i) => i);
-    const defaultViewConfig = {
+    // const isModel = true;
+    const isModel = "parts" in chunkOrModel; //~ ChromatinModel has .parts
+
+    /** @type {import("http://localhost:5173/src/main.ts").ViewConfig} */
+    let defaultViewConfig = {
       scale: 0.01,
-      color: {
-        values: sequenceValues,
-        min: 0,
-        max: binsNum - 1,
-        colorScale: "viridis",
-      },
-      links: true,
     };
+
+    if (isModel) {
+      defaultViewConfig = {
+        scale: 0.008,
+      };
+    } else {
+      //~ this config specifies how the 3D model will look
+      const binsNum = chunkOrModel.bins.length;
+      const sequenceValues = Array.from({ length: binsNum }, (_, i) => i);
+      defaultViewConfig = {
+        scale: 0.01,
+        color: {
+          values: sequenceValues,
+          min: 0,
+          max: binsNum - 1,
+          colorScale: "viridis",
+        },
+        links: true,
+      };
+    }
 
     const viewConfigNotSupplied = viewConfig === undefined ||
       Object.keys(viewConfig).length === 0;
     const vc = viewConfigNotSupplied ? defaultViewConfig : viewConfig;
 
-    chromatinScene = chs.addChunkToScene(chromatinScene, chunk, vc);
+    if (isModel) {
+      console.log("model from anywidget");
+      const model = chunkOrModel;
+      chromatinScene = chs.addModelToScene(chromatinScene, model, vc);
+    } else {
+      console.log("chunk from anywidget");
+      const chunk = chunkOrModel;
+      chromatinScene = chs.addChunkToScene(chromatinScene, chunk, vc);
+    }
 
     const [renderer, canvas] = chs.display(chromatinScene, {
       alwaysRedraw: false,
