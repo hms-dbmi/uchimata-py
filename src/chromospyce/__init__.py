@@ -8,6 +8,9 @@ import numpy as np
 import pandas as pd
 import pyarrow as pa
 
+import re
+import duckdb
+
 try:
     __version__ = importlib.metadata.version("chromospyce")
 except importlib.metadata.PackageNotFoundError:
@@ -35,6 +38,45 @@ def from_pandas_dataframe(df):
     # Get the table as Bytes
     table_bytes = output_stream.getvalue().to_pybytes()
     return table_bytes
+
+def select(_model, _query):
+    # convert arrow Bytes to Table
+    reader = pa.ipc.open_file(_model)
+    struct_table = reader.read_all()
+    # separate query into "chromosome:starCoord-endCoord"
+    if ":" in _query:
+        match = re.match(r"([^\:]+):(\d+)-(\d+)", _query)
+        if match:
+            chrom, start, end = match.groups()
+            sqlQuery = f'SELECT * FROM struct_table WHERE chr = \'{chrom}\' AND coord >= {start} AND coord <= {end}'
+        else:
+            print("Pattern does not match.")
+            return
+    else:
+        sqlQuery = f'SELECT * FROM struct_table WHERE chr = \'{_query}\''
+    
+    con = duckdb.connect()
+    print(sqlQuery)
+    new_table = con.execute(sqlQuery).arrow()
+    print(new_table)
+    # new_table
+    sink = pa.BufferOutputStream()
+    writer = pa.ipc.new_stream(sink, new_table.schema)
+    writer.write_table(new_table)
+    writer.close()
+
+    # Get the bytes
+    arrow_bytes = sink.getvalue().to_pybytes()
+
+    vc2 = {
+        "color": "lightgreen",
+        "scale": 0.01, 
+        "links": True, 
+        "mark": "sphere"
+    }
+
+    # return chromospyce.Widget(structure=arrow_bytes, viewconfig=vc2)
+    return Widget(structure=arrow_bytes, viewconfig=vc2)
 
 class Widget(anywidget.AnyWidget):
     _esm = pathlib.Path(__file__).parent / "static" / "widget.js"
