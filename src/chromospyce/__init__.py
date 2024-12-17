@@ -44,8 +44,9 @@ class Widget(anywidget.AnyWidget):
     structure = traitlets.Bytes().tag(sync=True)
     # ViewConfig: defines how the 3D structure will be shown
     viewconfig = traitlets.Dict().tag(sync=True)
+    selection_query = traitlets.Unicode("").tag(sync=True)
 
-    def __init__(self, structure, viewconfig={}):
+    def __init__(self, structure, viewconfig={}, query=""):
         """
         What types of data we expect:
         - 2D numpy array: [[x, y, z], ...]
@@ -53,11 +54,37 @@ class Widget(anywidget.AnyWidget):
         """
         if isinstance(structure, np.ndarray):
             # is a numpy array
-            super().__init__(structure=from_numpy(structure), viewconfig=viewconfig)
+            super().__init__(structure=from_numpy(structure), viewconfig=viewconfig, selection_query=query)
         elif isinstance(structure, pd.DataFrame):
             # is a pandas dataframe
-            super().__init__(structure=from_pandas_dataframe(structure), viewconfig=viewconfig)
+            super().__init__(structure=from_pandas_dataframe(structure), viewconfig=viewconfig, selection_query=query)
         else:
             # is something else (assume Arrow as Bytes)
-            super().__init__(structure=structure, viewconfig=viewconfig)
+            super().__init__(structure=structure, viewconfig=viewconfig, selection_query=query)
+
+    def get_data(self, format="arrow"):
+        """Returns the data displayed in the Widget. 
+
+        The idea is to allow specifying which format to return the data in
+        (arrow, numpy, pandas).
+        Arrow is the default option for now."""
+        if format == "numpy":
+            return self.as_numpy()
+        elif format == "arrow":
+            return self.as_arrow()
+        else:
+            return self.as_arrow()
+
+    def as_arrow(self):
+        # TODO: take into account selection_query
+        return self.structure
+
+    def as_numpy(self):
+        # TODO: take into account selection_query
+        reader = pa.ipc.open_file(self.structure)
+        table = reader.read_all()
+        # Only output the coordinates:
+        only_coords_table = table.select(["x", "y", "z"])
+        numpy_arr = only_coords_table .to_pandas().to_numpy()
+        return numpy_arr
 
