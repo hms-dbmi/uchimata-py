@@ -30,7 +30,6 @@ export default {
 		/** @type {DataView} */
 		const structure = model.get("structure");
 		const viewConfig = model.get("viewconfig");
-		const query = model.get("selection_query");
 		if (structure === undefined) {
 			console.error("suplied structure is UNDEFINED");
 		}
@@ -65,22 +64,14 @@ export default {
 			};
 		}
 
-		const viewConfigNotSupplied =
-			viewConfig === undefined || Object.keys(viewConfig).length === 0;
+		const viewConfigNotSupplied = viewConfig === undefined ||
+			Object.keys(viewConfig).length === 0;
 		const vc = viewConfigNotSupplied ? defaultViewConfig : viewConfig;
 
 		if (isModel) {
 			console.log("model from anywidget");
 			const model = chunkOrModel;
-			if (query !== "") {
-				const [part, _] = chs.get(model, query);
-				const newModel = {
-					parts: [part],
-				};
-				chromatinScene = chs.addModelToScene(chromatinScene, newModel, vc);
-			} else {
-				chromatinScene = chs.addModelToScene(chromatinScene, model, vc);
-			}
+			chromatinScene = chs.addModelToScene(chromatinScene, model, vc);
 		} else {
 			console.log("chunk from anywidget");
 			const chunk = chunkOrModel;
@@ -91,39 +82,10 @@ export default {
 			alwaysRedraw: false,
 		});
 		el.appendChild(canvas);
-		console.log("~~~~~~~~ HI ~~~~~~~~~~");
-
-		// function onQueryChange() {
-		// 	const query = model.get("selection_query");
-		// 	console.log(`The 'selection_query' changed to: ${query}`);
-		// 	if (isModel) {
-		// 		const chModel = chunkOrModel;
-		// 		const [selectedPart, _] = chs.get(chModel, query);
-		// 		const selectedModel = {
-		// 			parts: [selectedPart],
-		// 		};
-		// 		const newScene = chs.initScene();
-		// 		chs.addModelToScene(newScene, selectedModel, {
-		// 			color: "red",
-		// 			binSizeScale: 0.1,
-		// 		});
-		// 		console.log(
-		// 			`selectedPart # of bins: ${selectedPart.chunk.bins.length}`,
-		// 		);
-		//
-		// 		const [renderer, canvas] = chs.display(newScene, {
-		// 			alwaysRedraw: false,
-		// 		});
-		// 		el.replaceChildren();
-		// 		el.appendChild(canvas);
-		// 	} else {
-		// 		console.log("chs.get() called on a ChromatinChunk");
-		// 	}
-		// }
-		// model.on("change:selection_query", onQueryChange);
 
 		return () => {
 			// Optionally cleanup
+			console.log("~~~~~~~~~~~~~~ endDrawing ~~~~~~~~~~");
 			renderer.endDrawing();
 		};
 	},

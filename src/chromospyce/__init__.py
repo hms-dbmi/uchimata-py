@@ -45,6 +45,7 @@ def select(_model, _query):
     struct_table = reader.read_all()
     # separate query into "chromosome:starCoord-endCoord"
     if ":" in _query:
+        # means it should have a start-end range
         match = re.match(r"([^\:]+):(\d+)-(\d+)", _query)
         if match:
             chrom, start, end = match.groups()
@@ -53,13 +54,11 @@ def select(_model, _query):
             print("Pattern does not match.")
             return
     else:
+        # otherwise let's assume that it's a chromosome name
         sqlQuery = f'SELECT * FROM struct_table WHERE chr = \'{_query}\''
     
     con = duckdb.connect()
-    print(sqlQuery)
     new_table = con.execute(sqlQuery).arrow()
-    print(new_table)
-    # new_table
     sink = pa.BufferOutputStream()
     writer = pa.ipc.new_stream(sink, new_table.schema)
     writer.write_table(new_table)
@@ -67,16 +66,16 @@ def select(_model, _query):
 
     # Get the bytes
     arrow_bytes = sink.getvalue().to_pybytes()
+    return arrow_bytes
 
-    vc2 = {
-        "color": "lightgreen",
-        "scale": 0.01, 
-        "links": True, 
-        "mark": "sphere"
-    }
-
-    # return chromospyce.Widget(structure=arrow_bytes, viewconfig=vc2)
-    return Widget(structure=arrow_bytes, viewconfig=vc2)
+    # vc2 = {
+    #     "color": "lightgreen",
+    #     "scale": 0.01, 
+    #     "links": True, 
+    #     "mark": "sphere"
+    # }
+    #
+    # return Widget(structure=arrow_bytes, viewconfig=vc2)
 
 class Widget(anywidget.AnyWidget):
     _esm = pathlib.Path(__file__).parent / "static" / "widget.js"
@@ -86,9 +85,8 @@ class Widget(anywidget.AnyWidget):
     structure = traitlets.Bytes().tag(sync=True)
     # ViewConfig: defines how the 3D structure will be shown
     viewconfig = traitlets.Dict().tag(sync=True)
-    selection_query = traitlets.Unicode("").tag(sync=True)
 
-    def __init__(self, structure, viewconfig={}, query=""):
+    def __init__(self, structure, viewconfig={}):
         """
         What types of data we expect:
         - 2D numpy array: [[x, y, z], ...]
@@ -96,13 +94,13 @@ class Widget(anywidget.AnyWidget):
         """
         if isinstance(structure, np.ndarray):
             # is a numpy array
-            super().__init__(structure=from_numpy(structure), viewconfig=viewconfig, selection_query=query)
+            super().__init__(structure=from_numpy(structure), viewconfig=viewconfig)
         elif isinstance(structure, pd.DataFrame):
             # is a pandas dataframe
-            super().__init__(structure=from_pandas_dataframe(structure), viewconfig=viewconfig, selection_query=query)
+            super().__init__(structure=from_pandas_dataframe(structure), viewconfig=viewconfig)
         else:
             # is something else (assume Arrow as Bytes)
-            super().__init__(structure=structure, viewconfig=viewconfig, selection_query=query)
+            super().__init__(structure=structure, viewconfig=viewconfig)
 
     def get_data(self, format="arrow"):
         """Returns the data displayed in the Widget. 
@@ -118,12 +116,12 @@ class Widget(anywidget.AnyWidget):
             return self.as_arrow()
 
     def as_arrow(self):
-        # TODO: take into account selection_query
+        # TODO: check that the supplied self.structure is actually arrow
         return self.structure
 
     def as_numpy(self):
-        # TODO: take into account selection_query
-        reader = pa.ipc.open_file(self.structure)
+        # reader = pa.ipc.open_file(self.structure)
+        reader = pa.ipc.open_stream(self.structure)
         table = reader.read_all()
         # Only output the coordinates:
         only_coords_table = table.select(["x", "y", "z"])
