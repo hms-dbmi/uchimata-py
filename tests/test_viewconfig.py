@@ -1,4 +1,4 @@
-import chromospyce as chs
+import uchimata as uchi
 import numpy as np
 import pyarrow as pa
 
@@ -8,5 +8,5 @@ def test_no_viewconfig_supplied():
                  np.array([2.0, 0.0, 0.0])]
     structure = np.array(positions)
 
-    w = chs.Widget(structure=structure)
-    assert isinstance(w, chs.Widget)
+    w = uchi.Widget(structure=structure)
+    assert isinstance(w, uchi.Widget)
