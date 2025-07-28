@@ -12,6 +12,10 @@ notebook](./spyce-teaser.gif)
 The available functionality is pretty limited at this moment. We will stabilize
 the API as we go. At this point, you can display 3D chromatin models.
 
+```
+pip install uchimata
+```
+
 ```python
 import uchimata as uchi
 import numpy as np
