@@ -9,7 +9,7 @@ import pandas as pd
 import pyarrow as pa
 
 try:
-    __version__ = importlib.metadata.version("chromospyce")
+    __version__ = importlib.metadata.version("uchimata")
 except importlib.metadata.PackageNotFoundError:
     __version__ = "unknown"
 
@@ -38,7 +38,7 @@ def from_pandas_dataframe(df):
 
 class Widget(anywidget.AnyWidget):
     _esm = pathlib.Path(__file__).parent / "static" / "widget.js"
-    _css = pathlib.Path(__file__).parent / "static" / "widget.css"
+    # _css = pathlib.Path(__file__).parent / "static" / "widget.css"
 
     # 3D structure input: assumes Apache Arrow format
     structure = traitlets.Bytes().tag(sync=True)

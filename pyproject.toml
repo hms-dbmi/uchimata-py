@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "chromospyce"
-version = "0.1.2"
+name = "uchimata"
+version = "0.2.0"
 dependencies = [
     "anywidget>=0.9.13",
     "numpy>=1.24.4",
@@ -18,7 +18,7 @@ requires-python = ">=3.8"
 dev-dependencies = [
     "jupyterlab>=4.2.5",
     "numpy",
-    "chromospyce",
+    "uchimata",
     "pyarrow",
     "watchfiles",
     "nbconvert",
@@ -26,4 +26,4 @@ dev-dependencies = [
 ]
 
 [tool.uv.sources]
-chromospyce = { workspace = true }
+uchimata = { workspace = true }

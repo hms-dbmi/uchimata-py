@@ -1,16 +1,19 @@
-# chromospyce
+# uchimata-py
 
-This is an [anywidget](https://github.com/manzt/anywidget)-powered version of
-the [chromospace](https://github.com/dvdkouril/chromospace) library intended
-for use in computational notebooks, such as Jupyter Notebook.
+This repository contains code for the Python widget version of the
+[uchimata](https://github.com/dvdkouril/uchimata) library. Made with
+[anywidget](https://github.com/manzt/anywidget), this allows people to use the
+functionality in computational notebooks, such as Jupyter Notebook.
 
-![colorful squiggly thick line depicting 3D chromatin running in jupyter notebook](./spyce-teaser.gif)
+![colorful squiggly thick line depicting 3D chromatin running in jupyter
+notebook](./spyce-teaser.gif)
 
 ## Basic usage
-The available functionality is pretty limited at this moment. We will stabilize the API as we go. At this point, you can display 3D chromatin models.
+The available functionality is pretty limited at this moment. We will stabilize
+the API as we go. At this point, you can display 3D chromatin models.
 
 ```python
-import chromospyce
+import uchimata as uchi
 import numpy as np
 
 BINS_NUM = 1000
@@ -27,7 +30,7 @@ def make_random_3D_chromatin_structure(n):
 
 random_structure = make_random_3D_chromatin_structure(BINS_NUM)
 
-# Step 2: Display the structure in a chromospyce widget
+# Step 2: Display the structure in an uchimata widget
 numbers = list(range(0, BINS_NUM+1))
 vc = {
     "color": {
@@ -40,19 +43,18 @@ vc = {
     "links": True, 
     "mark": "sphere"
 }
-chromospyce.Widget(random_structure, vc)
+uchi.Widget(random_structure, vc)
 ```
 
-The underlying JS library, **chromospace**, [only supports data in the Apache
-Arrow
-format](https://github.com/dvdkouril/chromospace/tree/main/docs#data-loading).
+The underlying JS library [only supports data in the Apache Arrow
+format](https://github.com/dvdkouril/uchimata/tree/main/docs#data-loading).
 
-In **chromospyce**, on the other hand, you can also visualize structures
-defined as 2D numpy arrays, or pandas dataframe (with columns named `'x'`,
-`'y'`, `'z'`.
+In the widget version, on the other hand, we provide interface to load data in
+many notebook-native formats, such as 2D numpy arrays, or pandas dataframe
+(with columns named `'x'`, `'y'`, `'z'`).
 
-Quickly test out **chromospyce** with [uv](https://docs.astral.sh/uv/):
-1. `uv run --with chromospyce --with numpy --with pyarrow --with jupyterlab
+Quickly test out **uchimata** with [uv](https://docs.astral.sh/uv/):
+1. `uv run --with uchimata --with numpy --with pyarrow --with jupyterlab
    jupyter lab`
 2. make a new notebook
 3. copy and paste the code above into an empty cell

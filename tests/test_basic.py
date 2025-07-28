@@ -1,4 +1,4 @@
-import chromospyce as chs
+import uchimata as uchi
 import numpy as np
 import pandas as pd
 import pyarrow as pa
@@ -15,8 +15,8 @@ def test_numpy_simple():
         "links": True, 
         "mark": "sphere"
     }
-    w = chs.Widget(structure=structure, viewconfig=vc)
-    assert isinstance(w, chs.Widget)
+    w = uchi.Widget(structure=structure, viewconfig=vc)
+    assert isinstance(w, uchi.Widget)
 
 def test_pandas_simple():
     df = pd.DataFrame({"x": [0.0, 1.0, 2.0],
@@ -28,8 +28,8 @@ def test_pandas_simple():
         "links": True, 
         "mark": "sphere"
     }
-    w = chs.Widget(structure=df, viewconfig=vc)
-    assert isinstance(w, chs.Widget)
+    w = uchi.Widget(structure=df, viewconfig=vc)
+    assert isinstance(w, uchi.Widget)
 
 def test_arrow_simple():
     x_positions = np.array([0.0, 1.0, 2.0])
@@ -52,5 +52,5 @@ def test_arrow_simple():
         "links": True, 
         "mark": "sphere"
     }
-    w = chs.Widget(structure=table_as_bytes, viewconfig=vc)
-    assert isinstance(w, chs.Widget)
+    w = uchi.Widget(structure=table_as_bytes, viewconfig=vc)
+    assert isinstance(w, uchi.Widget)
