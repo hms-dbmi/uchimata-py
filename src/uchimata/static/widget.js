@@ -1,5 +1,5 @@
-// @deno-types="npm:chromospace"
-import * as chs from "https://esm.sh/chromospace@^0.1.x";
+// @deno-types="npm:uchimata"
+import * as uchi from "https://esm.sh/uchimata@^0.2.x";
 
 /**
  * @typedef TextFile
@@ -24,7 +24,7 @@ export default {
     };
 
     //~ create a scene
-    let chromatinScene = chs.initScene();
+    let chromatinScene = uchi.initScene();
 
     //~ process input
     /** @type {DataView} */
@@ -34,51 +34,46 @@ export default {
       console.error("suplied structure is UNDEFINED");
     }
     console.log(viewConfig);
-    const chunkOrModel = chs.load(structure.buffer, options);
+    const chunkOrModel = uchi.load(structure.buffer, options); //~ TODO: better name for this variable
 
-    // const isModel = true;
-    const isModel = "parts" in chunkOrModel; //~ ChromatinModel has .parts
+    //const isModel = "parts" in chunkOrModel; //~ ChromatinModel has .parts
 
     /** @type {import("http://localhost:5173/src/main.ts").ViewConfig} */
-    let defaultViewConfig = {
+    const defaultViewConfig = {
       scale: 0.01,
     };
 
-    if (isModel) {
-      defaultViewConfig = {
-        scale: 0.008,
-      };
-    } else {
-      //~ this config specifies how the 3D model will look
-      const binsNum = chunkOrModel.bins.length;
-      const sequenceValues = Array.from({ length: binsNum }, (_, i) => i);
-      defaultViewConfig = {
-        scale: 0.01,
-        color: {
-          values: sequenceValues,
-          min: 0,
-          max: binsNum - 1,
-          colorScale: "viridis",
-        },
-        links: true,
-      };
-    }
+    //if (isModel) {
+    //  defaultViewConfig = {
+    //    scale: 0.008,
+    //  };
+    //} else {
+    //  //~ this config specifies how the 3D model will look
+    //  const binsNum = chunkOrModel.bins.length;
+    //  const sequenceValues = Array.from({ length: binsNum }, (_, i) => i);
+    //  defaultViewConfig = {
+    //    scale: 0.01,
+    //    color: {
+    //      values: sequenceValues,
+    //      min: 0,
+    //      max: binsNum - 1,
+    //      colorScale: "viridis",
+    //    },
+    //    links: true,
+    //  };
+    //}
 
     const viewConfigNotSupplied = viewConfig === undefined ||
       Object.keys(viewConfig).length === 0;
     const vc = viewConfigNotSupplied ? defaultViewConfig : viewConfig;
 
-    if (isModel) {
-      console.log("model from anywidget");
-      const model = chunkOrModel;
-      chromatinScene = chs.addModelToScene(chromatinScene, model, vc);
-    } else {
-      console.log("chunk from anywidget");
-      const chunk = chunkOrModel;
-      chromatinScene = chs.addChunkToScene(chromatinScene, chunk, vc);
-    }
+    chromatinScene = uchi.addStructureToScene(
+      chromatinScene,
+      chunkOrModel,
+      vc,
+    );
 
-    const [renderer, canvas] = chs.display(chromatinScene, {
+    const [renderer, canvas] = uchi.display(chromatinScene, {
       alwaysRedraw: false,
     });
     el.appendChild(canvas);
