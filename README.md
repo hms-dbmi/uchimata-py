@@ -5,8 +5,9 @@ This repository contains code for the Python widget version of the
 [anywidget](https://github.com/manzt/anywidget), this allows people to use the
 functionality in computational notebooks, such as Jupyter Notebook.
 
-![colorful squiggly thick line depicting 3D chromatin running in jupyter
-notebook](./spyce-teaser.gif)
+<img width="2384" height="2250" alt="colorful squiggly thick line depicting 3D chromatin running in jupyter
+notebook" src="https://github.com/user-attachments/assets/724f2a75-34a1-489e-abe8-f8167fdbd3cc" />
+
 
 ## Basic usage
 The available functionality is pretty limited at this moment. We will stabilize
