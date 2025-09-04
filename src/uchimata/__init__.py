@@ -8,11 +8,51 @@ import numpy as np
 import pandas as pd
 import pyarrow as pa
 
+import duckdb
+import re
+
 try:
     __version__ = importlib.metadata.version("uchimata")
 except importlib.metadata.PackageNotFoundError:
     __version__ = "unknown"
 
+def select(_model, _query):
+    # convert arrow Bytes to Table
+    reader = pa.ipc.open_file(_model)
+    struct_table = reader.read_all()
+    # separate query into "chromosome:starCoord-endCoord"
+    if ":" in _query:
+        # means it should have a start-end range
+        match = re.match(r"([^\:]+):(\d+)-(\d+)", _query)
+        if match:
+            chrom, start, end = match.groups()
+            sqlQuery = f'SELECT * FROM struct_table WHERE chr = \'{chrom}\' AND coord >= {start} AND coord <= {end}'
+        else:
+            print("Pattern does not match.")
+            return
+    else:
+        # otherwise let's assume that it's a chromosome name
+        sqlQuery = f'SELECT * FROM struct_table WHERE chr = \'{_query}\''
+
+    con = duckdb.connect()
+    new_table = con.execute(sqlQuery).arrow()
+    sink = pa.BufferOutputStream()
+    writer = pa.ipc.new_stream(sink, new_table.schema)
+    writer.write_table(new_table)
+    writer.close()
+
+    # Get the bytes
+    arrow_bytes = sink.getvalue().to_pybytes()
+    return arrow_bytes
+
+    # vc2 = {
+    #     "color": "lightgreen",
+    #     "scale": 0.01, 
+    #     "links": True, 
+    #     "mark": "sphere"
+    # }
+    #
+    # return Widget(structure=arrow_bytes, viewconfig=vc2)
 
 def from_numpy(nparr):
     """
