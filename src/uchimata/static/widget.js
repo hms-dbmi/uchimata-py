@@ -1,5 +1,5 @@
 // @deno-types="npm:uchimata"
-import * as uchi from "https://esm.sh/uchimata@^0.2.x";
+import * as uchi from "https://esm.sh/uchimata@^0.3.x";
 
 /**
  * @typedef TextFile

@@ -30,3 +30,6 @@ dev-dependencies = [
 
 [tool.uv.sources]
 uchimata = { workspace = true }
+
+[tool.marimo.runtime]
+output_max_bytes = 10_000_000
