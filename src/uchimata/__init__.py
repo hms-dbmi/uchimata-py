@@ -10,11 +10,43 @@ import pyarrow as pa
 
 import duckdb
 import re
+import bioframe
 
 try:
     __version__ = importlib.metadata.version("uchimata")
 except importlib.metadata.PackageNotFoundError:
     __version__ = "unknown"
+
+def select_bioframe(model, df):
+    # convert arrow Bytes to Table
+    reader = pa.ipc.open_file(model)
+    struct_table = reader.read_all()
+
+    if not bioframe.is_bedframe(df):
+        raise ValueError("DataFrame is not a valid bedframe.")
+
+    sqlQuery = f'SELECT * FROM struct_table WHERE '
+    for index, row in df.iterrows():
+        chrom = row['chrom']
+        start = row['start']
+        end = row['end']
+        if index > 0:
+            sqlQuery += ' OR '
+        sqlQuery += f'(chr = \'{chrom}\' AND coord >= {start} AND coord <= {end})'
+
+    print(sqlQuery)
+    
+    con = duckdb.connect()
+    new_table = con.execute(sqlQuery).arrow()
+    sink = pa.BufferOutputStream()
+    writer = pa.ipc.new_stream(sink, new_table.schema)
+    writer.write_table(new_table)
+    writer.close()
+
+    # Get the bytes
+    arrow_bytes = sink.getvalue().to_pybytes()
+    return arrow_bytes
+    # sqlQuery = f'SELECT * FROM struct_table WHERE chr = '
 
 def select(_model, _query):
     # convert arrow Bytes to Table

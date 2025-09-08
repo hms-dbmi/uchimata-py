@@ -67,6 +67,42 @@ def _(bioframe, genes):
 
 @app.cell
 def _():
+    import requests
+
+    def fetchFile(url):
+        response = requests.get(url)
+        if (response.status_code == 200):
+            # print(response.content[0:10])
+            file = response.content
+            return file
+        else:
+            print("Error fetching the remote file")
+            return None
+
+    # url = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Tan-2018_GSM3271347_gm12878_01.arrow"
+    url = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_1.arrow"
+
+    model = fetchFile(url)
+    return (model,)
+
+
+@app.cell
+def _(bioframe, model):
+    import uchimata as uchi
+
+    df3 = bioframe.from_any(
+        [['chr a', 3000000, 5000000],
+         ['chr b', 3000000, 5000000]],
+        name_col='chrom')
+
+    submodel = uchi.select_bioframe(model, df3)
+    w2 = uchi.Widget(structure=submodel)
+    w2
+    return
+
+
+@app.cell
+def _():
     return
 
 
