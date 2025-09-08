@@ -10,8 +10,9 @@ notebook" src="https://github.com/user-attachments/assets/724f2a75-34a1-489e-abe
 
 
 ## Basic usage
-The available functionality is pretty limited at this moment. We will stabilize
-the API as we go. At this point, you can display 3D chromatin models.
+The API is still frequently changing. The main feature of the widget right now
+is the ability to display 3D chromatin models and we're working on capabilities
+to integrate with other bioinformatics tools.
 
 ```
 pip install uchimata
@@ -52,7 +53,7 @@ uchi.Widget(random_structure, vc)
 ```
 
 The underlying JS library [only supports data in the Apache Arrow
-format](https://github.com/dvdkouril/uchimata/tree/main/docs#data-loading).
+format](https://hms-dbmi.github.io/uchimata/why-arrow.html).
 
 In the widget version, on the other hand, we provide interface to load data in
 many notebook-native formats, such as 2D numpy arrays, or pandas dataframe
