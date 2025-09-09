@@ -4,21 +4,48 @@ __generated_with = "0.15.2"
 app = marimo.App(width="medium")
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+    # Mapping gene density to a 3D genome structure
+    In this example, we'll map gene density to a 3D structure model. Thanks to `marimo`, we can skip directly to the end and show the final visualization before breaking down the process. Below, you can see a 3D structure of a mouse genome. The density of genes is mapped to both color and size of the spherical marks representing bins. The structure is cut in half.
+    """
+    )
+    return
+
+
 @app.cell
-def _():
-    import numpy as np
-    import bioframe
-    import uchimata as uchi
-    import requests
-    import marimo as mo
-    return bioframe, mo, requests, uchi
+def _(merged_table_bytes, uchi):
+    vc = {
+        "color": {
+            "field": "count",
+            "min": 0,
+            "max": 395,
+            "colorScale": "Blues"
+        }, 
+        "scale": {
+            "field": "count",
+            "min": 0,
+            "max": 395,
+            "scaleMin": 0.001,
+            "scaleMax": 0.02,
+        }, 
+        "links": False, "mark": "sphere"
+    }
+
+    cutModel = uchi.cut(merged_table_bytes)
+    # w3 = uchi.Widget(structure=merged_table_bytes, viewconfig=vc)
+    w3 = uchi.Widget(structure=cutModel, viewconfig=vc)
+    w3
+    return (cutModel,)
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-    ## Mapping gene density to a 3D genome structure
+    ## Getting the gene annotation data
     We'll fetch and process gene annotations for the 'mm10' assembly, since that is what our 3D structures use. We're using `bioframe` to download and process the data.
     """
     )
@@ -51,32 +78,6 @@ def _(bioframe, chromsizes_mouse, mouse_genes):
     return (bin_gene_counts,)
 
 
-@app.cell
-def _():
-    import pyarrow as pa
-    import pyarrow.ipc as ipc
-    import pandas as pd
-    return ipc, pa, pd
-
-
-@app.cell
-def _(ipc, model, pa):
-    buf = pa.BufferReader(model)
-    reader = ipc.RecordBatchFileReader(buf)
-
-    table = reader.read_all()
-
-    table
-    return (table,)
-
-
-@app.cell
-def _(table):
-    table_as_df = table.to_pandas()
-    table_as_df
-    return (table_as_df,)
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
@@ -85,6 +86,32 @@ def _(mo):
     The structures have been published in a format that requires some processing before we can merge / join them with a bedfile-like columnar format.
     """
     )
+    return
+
+
+@app.cell
+def _(fetchFile):
+    # The origin of this data is [Stevens et al. 2017](https://doi.org/10.1038/nature21429). The supplementals stored at GEO have been processed and individual structures extracted from the PDB files.
+    url = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_1.arrow"
+    model = fetchFile(url)
+    return (model,)
+
+
+@app.cell
+def _(ipc, model, pa):
+    # Converting the Arrow IPC bytes to Arrow Table and then a pandas dataframe
+    buf = pa.BufferReader(model)
+    reader = ipc.RecordBatchFileReader(buf)
+
+    table = reader.read_all()
+    table_as_df = table.to_pandas()
+    table_as_df
+    return (table_as_df,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""Next, we need to process the 3D structure dataframe:""")
     return
 
 
@@ -171,32 +198,6 @@ def _(mo):
 
 @app.cell
 def _(merged_table_bytes, uchi):
-    vc = {
-        "color": {
-            "field": "count",
-            "min": 0,
-            "max": 395,
-            "colorScale": "Blues"
-        }, 
-        "scale": {
-            "field": "count",
-            "min": 0,
-            "max": 395,
-            "scaleMin": 0.001,
-            "scaleMax": 0.02,
-        }, 
-        "links": False, "mark": "sphere"
-    }
-
-    cutModel = uchi.cut(merged_table_bytes)
-    # w3 = uchi.Widget(structure=merged_table_bytes, viewconfig=vc)
-    w3 = uchi.Widget(structure=cutModel, viewconfig=vc)
-    w3
-    return (cutModel,)
-
-
-@app.cell
-def _(merged_table_bytes, uchi):
     vc4 = {
         "color": {
             "field": "count",
@@ -239,6 +240,24 @@ def _(mo):
 
 
 @app.cell
+def _():
+    import numpy as np
+    import bioframe
+    import uchimata as uchi
+    import requests
+    import marimo as mo
+    return bioframe, mo, requests, uchi
+
+
+@app.cell
+def _():
+    import pyarrow as pa
+    import pyarrow.ipc as ipc
+    import pandas as pd
+    return ipc, pa, pd
+
+
+@app.cell
 def _(requests):
     def fetchFile(url):
         response = requests.get(url)
@@ -249,14 +268,13 @@ def _(requests):
             print("Error fetching the remote file")
             return None
 
-    # The origin of this data is [Stevens et al. 2017](https://doi.org/10.1038/nature21429). The supplementals stored at GEO have been processed and individual structures extracted from the PDB files.
-    url = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_1.arrow"
-    model = fetchFile(url)
-    return (model,)
+    return (fetchFile,)
 
 
 @app.cell
-def _():
+def _(fetchFile):
+    url2 = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_2.arrow"
+    model2 = fetchFile(url2)
     return
 
 
