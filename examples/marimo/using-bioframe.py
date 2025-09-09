@@ -8,64 +8,20 @@ app = marimo.App(width="medium")
 def _():
     import numpy as np
     import bioframe
-    return (bioframe,)
-
-
-@app.cell
-def _(bioframe):
-    ctcf_peaks = bioframe.read_table(
-        "https://www.encodeproject.org/files/ENCFF401MQL/@@download/ENCFF401MQL.bed.gz",
-        schema="narrowPeak",
-    )
-    ctcf_peaks.head()
-    return
-
-
-@app.cell
-def _():
-    import requests
-
-    def fetchFile(url):
-        response = requests.get(url)
-        if (response.status_code == 200):
-            # print(response.content[0:10])
-            file = response.content
-            return file
-        else:
-            print("Error fetching the remote file")
-            return None
-
-    # url = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Tan-2018_GSM3271347_gm12878_01.arrow"
-    url = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_1.arrow"
-
-    model = fetchFile(url)
-    return (model,)
-
-
-@app.cell
-def _(bioframe, model):
     import uchimata as uchi
-
-    df3 = bioframe.from_any(
-        [['chr a', 3000000, 5000000],
-         ['chr b', 3000000, 5000000]],
-        name_col='chrom')
-
-    submodel = uchi.select_bioframe(model, df3)
-    w2 = uchi.Widget(structure=submodel)
-    w2
-    return (uchi,)
-
-
-@app.cell
-def _():
+    import requests
     import marimo as mo
-    return (mo,)
+    return bioframe, mo, requests, uchi
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""## mouse genome""")
+    mo.md(
+        r"""
+    ## Mapping gene density to a 3D genome structure
+    We'll fetch and process gene annotations for the 'mm10' assembly, since that is what our 3D structures use. We're using `bioframe` to download and process the data.
+    """
+    )
     return
 
 
@@ -73,7 +29,7 @@ def _(mo):
 def _(bioframe):
     assembly_mouse = "mm10"
     chromsizes_mouse = bioframe.fetch_chromsizes(assembly_mouse)
-    chromsizes_mouse
+    # chromsizes_mouse
     return (chromsizes_mouse,)
 
 
@@ -82,25 +38,15 @@ def _(bioframe):
     # taken from here: https://www.encodeproject.org/files/ENCFF871VGR/
     mouse_genes_url = "https://www.encodeproject.org/files/ENCFF871VGR/@@download/ENCFF871VGR.gtf.gz"
     mouse_genes = bioframe.read_table(mouse_genes_url, schema="gtf").query('feature=="CDS"')
-
-    # mouse_genes.head()
     mouse_genes
     return (mouse_genes,)
 
 
 @app.cell
-def _(mouse_genes):
-    # mouse_genes_chr1 = mouse_genes.query('chrom=="chr1"')
-    mouse_genes_chr1 = mouse_genes
-    mouse_genes_chr1
-    return (mouse_genes_chr1,)
-
-
-@app.cell
-def _(bioframe, chromsizes_mouse, mouse_genes_chr1):
+def _(bioframe, chromsizes_mouse, mouse_genes):
     bins = bioframe.binnify(chromsizes_mouse, 100_000)
 
-    bin_gene_counts = bioframe.count_overlaps(bins, mouse_genes_chr1)
+    bin_gene_counts = bioframe.count_overlaps(bins, mouse_genes)
     bin_gene_counts
     return (bin_gene_counts,)
 
@@ -131,9 +77,20 @@ def _(table):
     return (table_as_df,)
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+    ## Process the 3D structures
+    The structures have been published in a format that requires some processing before we can merge / join them with a bedfile-like columnar format.
+    """
+    )
+    return
+
+
 @app.cell
 def _(table_as_df):
-    # rename 'chr a' to 'chr1' etc.
+    # 1. rename 'chr a' to 'chr1' etc.
     table_df = table_as_df.copy()
     mapping = {
         'chr a': 'chr1',
@@ -159,17 +116,23 @@ def _(table_as_df):
     }
     table_df['chr'] = table_df['chr'].map(mapping).fillna(table_df['chr'])
 
-    # add 'end' column
+    # 2. add 'end' column, based on the binning resolution of the model
     table_df['end'] = table_df['coord'] + 100_000
 
-    # rename 'coord' to 'start'
+    # 3. rename 'coord' to 'start'
     table_df = table_df.rename(columns={'coord': 'start'})
 
-    # rename 'chr' to 'chrom'
+    # 4. rename 'chr' to 'chrom'
     table_df = table_df.rename(columns={'chr': 'chrom'})
 
     table_df
     return (table_df,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""## Joining the gene density and structure dataframes""")
+    return
 
 
 @app.cell
@@ -196,33 +159,100 @@ def _(merged_df, pa):
 
 
 @app.cell
-def _(merged_df, pd):
-    isinstance(merged_df, pd.DataFrame)
+def _(mo):
+    mo.md(
+        r"""
+    ## The result
+    Extracting biological insights is, of course, on a bioinformatician to do, but we can for example see the gene-rich regions and more concentrated "inside" the structure.
+    """
+    )
     return
 
 
 @app.cell
 def _(merged_table_bytes, uchi):
     vc = {
-        # "color": "lightgreen",
-        # "color": {
-        #     "field": "x",
-        #     "min": -1,
-        #     "max": 1,
-        #     "colorScale": "Spectral"
-        # }, 
+        "color": {
+            "field": "count",
+            "min": 0,
+            "max": 395,
+            "colorScale": "Blues"
+        }, 
+        "scale": {
+            "field": "count",
+            "min": 0,
+            "max": 395,
+            "scaleMin": 0.001,
+            "scaleMax": 0.02,
+        }, 
+        "links": False, "mark": "sphere"
+    }
+
+    cutModel = uchi.cut(merged_table_bytes)
+    # w3 = uchi.Widget(structure=merged_table_bytes, viewconfig=vc)
+    w3 = uchi.Widget(structure=cutModel, viewconfig=vc)
+    w3
+    return (cutModel,)
+
+
+@app.cell
+def _(merged_table_bytes, uchi):
+    vc4 = {
         "color": {
             "field": "count",
             "min": 0,
             "max": 395,
             "colorScale": "Viridis"
         }, 
-        "scale": 0.005, "links": False, "mark": "sphere"
+        "scale": 0.01, "links": False, "mark": "sphere"
     }
 
-    w3 = uchi.Widget(structure=merged_table_bytes, viewconfig=vc)
-    w3
+    # cutModel = uchi.cut(merged_table_bytes)
+    w4 = uchi.Widget(structure=merged_table_bytes, viewconfig=vc4)
+    # w3 = uchi.Widget(structure=cutModel, viewconfig=vc)
+    w4
     return
+
+
+@app.cell
+def _(cutModel, uchi):
+    vc5 = {
+        "color": {
+            "field": "count",
+            "min": 0,
+            "max": 395,
+            "colorScale": "Viridis"
+        }, 
+        "scale": 0.01, "links": False, "mark": "sphere"
+    }
+
+    # cutModel2 = uchi.cut(merged_table_bytes)
+    w5 = uchi.Widget(structure=cutModel, viewconfig=vc5)
+    w5
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""## Appendix""")
+    return
+
+
+@app.cell
+def _(requests):
+    def fetchFile(url):
+        response = requests.get(url)
+        if (response.status_code == 200):
+            file = response.content
+            return file
+        else:
+            print("Error fetching the remote file")
+            return None
+
+    # The origin of this data is [Stevens et al. 2017](https://doi.org/10.1038/nature21429). The supplementals stored at GEO have been processed and individual structures extracted from the PDB files.
+    url = "https://pub-5c3f8ce35c924114a178c6e929fc3ac7.r2.dev/Stevens-2017_GSM2219497_Cell_1_model_1.arrow"
+    model = fetchFile(url)
+    return (model,)
 
 
 @app.cell

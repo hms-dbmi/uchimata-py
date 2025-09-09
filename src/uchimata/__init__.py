@@ -23,6 +23,7 @@ def select_bioframe(model, df):
     struct_table = reader.read_all()
 
     if not bioframe.is_bedframe(df):
+        # This makes sure that there are 'chrom', 'start', 'end' columns in the dataframe
         raise ValueError("DataFrame is not a valid bedframe.")
 
     sqlQuery = f'SELECT * FROM struct_table WHERE '
@@ -34,7 +35,26 @@ def select_bioframe(model, df):
             sqlQuery += ' OR '
         sqlQuery += f'(chr = \'{chrom}\' AND coord >= {start} AND coord <= {end})'
 
-    print(sqlQuery)
+    con = duckdb.connect()
+    new_table = con.execute(sqlQuery).arrow()
+    sink = pa.BufferOutputStream()
+    writer = pa.ipc.new_stream(sink, new_table.schema)
+    writer.write_table(new_table)
+    writer.close()
+
+    # Get the bytes
+    arrow_bytes = sink.getvalue().to_pybytes()
+    return arrow_bytes
+
+def cut(model):
+    # convert arrow Bytes to Table
+    buf = pa.BufferReader(model)
+    reader = pa.ipc.RecordBatchStreamReader(buf)
+
+    # table = reader.read_all()
+    struct_table = reader.read_all()
+
+    sqlQuery = f'SELECT * FROM struct_table WHERE x > 0'
     
     con = duckdb.connect()
     new_table = con.execute(sqlQuery).arrow()
@@ -46,7 +66,6 @@ def select_bioframe(model, df):
     # Get the bytes
     arrow_bytes = sink.getvalue().to_pybytes()
     return arrow_bytes
-    # sqlQuery = f'SELECT * FROM struct_table WHERE chr = '
 
 def select(_model, _query):
     # convert arrow Bytes to Table
