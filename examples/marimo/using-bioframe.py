@@ -9,7 +9,7 @@ def _(mo):
     mo.md(
         r"""
     # Mapping gene density to a 3D genome structure
-    In this example, we'll map gene density to a 3D structure model. Thanks to `marimo`, we can skip directly to the end and show the final visualization before breaking down the process. Below, you can see a 3D structure of a mouse genome. The density of genes is mapped to both color and size of the spherical marks representing bins. The structure is cut in half.
+    In this example, we'll map gene density to a 3D structure model. Thanks to `marimo`, we can skip directly to the end and show the final visualization before breaking down the process. Below, you can see a 3D structure of a mouse genome. The density of genes is mapped to both color and size of the spherical marks representing bins. The structure is cut in half. The bigger and darker spheres represent regions of the genome where many genes lie.
     """
     )
     return
