@@ -38,7 +38,7 @@ def _(merged_table_bytes, uchi):
     # w3 = uchi.Widget(structure=merged_table_bytes, viewconfig=vc)
     w3 = uchi.Widget(structure=cutModel, viewconfig=vc)
     w3
-    return (cutModel,)
+    return cutModel, w3
 
 
 @app.cell(hide_code=True)
@@ -222,7 +222,7 @@ def _(cutModel, uchi):
             "field": "count",
             "min": 0,
             "max": 395,
-            "colorScale": "Viridis"
+            "colorScale": "Blues"
         }, 
         "scale": 0.01, "links": False, "mark": "sphere"
     }
@@ -230,6 +230,29 @@ def _(cutModel, uchi):
     # cutModel2 = uchi.cut(merged_table_bytes)
     w5 = uchi.Widget(structure=cutModel, viewconfig=vc5)
     w5
+    return
+
+
+@app.cell
+def _(w3):
+    w3
+    return
+
+
+@app.cell
+def _(merged_table_bytes, uchi):
+    vc6 = {
+        "color": {
+            "field": "count",
+            "min": 0,
+            "max": 395,
+            "colorScale": "Viridis"
+        }, 
+        "scale": 0.01, "links": False, "mark": "sphere"
+    }
+
+    # cutModel2 = uchi.cut(merged_table_bytes)
+    uchi.Widget(structure=uchi.select(merged_table_bytes, "chr f"), viewconfig=vc6)
     return
 
 
@@ -267,7 +290,6 @@ def _(requests):
         else:
             print("Error fetching the remote file")
             return None
-
     return (fetchFile,)
 
 
