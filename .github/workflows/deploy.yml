@@ -21,7 +21,7 @@ jobs:
 
       - name: Export notebooks # TODO: just deploying a single notebook for now
         run: |
-          marimo export html-wasm examples/marimo/stevens2017.py -o _site --mode edit
+          uvx --with marimo marimo export html-wasm examples/marimo/stevens2017.py -o _site --mode edit
     
       - name: 📤 Upload artifact
         uses: actions/upload-pages-artifact@v4
