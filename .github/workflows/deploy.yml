@@ -1,0 +1,46 @@
+name: Deploy marimo notebooks to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Set a branch name to trigger deployment
+  workflow_dispatch:
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Export notebooks # TODO: just deploying a single notebook for now
+        run: |
+          marimo export html-wasm examples/marimo/stevens2017.py -o _site --mode edit
+    
+      - name: 📤 Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site  # Directory containing the built site
+
+  deploy:
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
