@@ -19,19 +19,9 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
 
-      # - name: Export notebooks
-      #   run: |
-      #     # todo: Ultimately this function should not be part of this repo
-      #     # It should very much be an action such that other repos
-      #     # can use it without forking or copying it
-      #     # No, it should not be an action. As otherwise can't run before push
-      #     uv run .github/scripts/build.py  # This script exports all notebooks to the _site directory
-      #     tree _site                       # Display the exported files
-      - name: Mock export notebooks
+      - name: Export notebooks # TODO: just deploying a single notebook for now
         run: |
-          mkdir -p _site
-          echo "<html><body><h1>Marimo Notebooks</h1></body></html>" > _site/index.html
-          tree _site                       # Display the exported files
+          marimo export html-wasm examples/marimo/stevens2017.py -o _site --mode edit
     
       - name: 📤 Upload artifact
         uses: actions/upload-pages-artifact@v4
