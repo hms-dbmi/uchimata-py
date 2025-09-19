@@ -1,21 +1,27 @@
 # uchimata-py
 
-This repository contains code for the Python widget version of the
+This repository contains code for a widget version of the
 [uchimata](https://github.com/dvdkouril/uchimata) library. Made with
-[anywidget](https://github.com/manzt/anywidget), this allows people to use the
-functionality in computational notebooks, such as Jupyter Notebook.
+[anywidget](https://github.com/manzt/anywidget), this allows people to
+visualize 3D genome models in Python-based computational notebooks, such as
+Jupyter Notebook.
 
 <img width="2384" height="2250" alt="colorful squiggly thick line depicting 3D chromatin running in jupyter
 notebook" src="https://github.com/user-attachments/assets/724f2a75-34a1-489e-abe8-f8167fdbd3cc" />
 
 
 ## Basic usage
-The API is still frequently changing. The main feature of the widget right now
-is the ability to display 3D chromatin models and we're working on capabilities
-to integrate with other bioinformatics tools.
+
+`uchimata` is available on [PyPI](https://pypi.org/project/uchimata/):
 
 ```
 pip install uchimata
+```
+
+We like to use [uv](https://docs.astral.sh/uv/) to manage project dependencies:
+
+```
+uv add uchimata
 ```
 
 ```python
@@ -51,6 +57,10 @@ vc = {
 }
 uchi.Widget(random_structure, vc)
 ```
+
+The API is still frequently changing. The main feature of the widget right now
+is the ability to display 3D chromatin models and we're working on capabilities
+to integrate with other bioinformatics tools.
 
 The underlying JS library [only supports data in the Apache Arrow
 format](https://hms-dbmi.github.io/uchimata/why-arrow.html).
