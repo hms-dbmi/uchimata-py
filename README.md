@@ -57,6 +57,8 @@ vc = {
 }
 uchi.Widget(random_structure, vc)
 ```
+[Run the example in Google
+Colab](https://colab.research.google.com/drive/1EZh9HcGS3cgPF4C6eFyMm5iHGVGS4Cj_?usp=sharing).
 
 The API is still frequently changing. The main feature of the widget right now
 is the ability to display 3D chromatin models and we're working on capabilities
@@ -74,9 +76,6 @@ Quickly test out **uchimata** with [uv](https://docs.astral.sh/uv/):
    jupyter lab`
 2. make a new notebook
 3. copy and paste the code above into an empty cell
-
-Or: [run the example in Google
-Colab](https://colab.research.google.com/drive/1EZh9HcGS3cgPF4C6eFyMm5iHGVGS4Cj_?usp=sharing).
 
 ## Contributing
 Running tests:
