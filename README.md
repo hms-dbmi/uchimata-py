@@ -1,7 +1,7 @@
 # uchimata-py
 
 This repository contains code for a widget version of the
-[uchimata](https://github.com/dvdkouril/uchimata) library. Made with
+[uchimata](https://github.com/hms-dbmi/uchimata) library. Made with
 [anywidget](https://github.com/manzt/anywidget), this allows people to
 visualize 3D genome models in Python-based computational notebooks, such as
 Jupyter Notebook.
