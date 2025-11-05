@@ -135,7 +135,10 @@ class Widget(anywidget.AnyWidget):
     # ViewConfig: defines how the 3D structure will be shown
     viewconfigs = traitlets.List().tag(sync=True)
 
-    def __init__(self, *structures, viewconfig=None):
+    # options
+    options = traitlets.Dict().tag(sync=True)
+
+    def __init__(self, *structures, viewconfig=None, options=None):
         """
         Create a widget with one or more 3D structures.
 
@@ -149,6 +152,9 @@ class Widget(anywidget.AnyWidget):
                 - dict: same viewconfig applied to all structures
                 - list of dicts: each structure gets corresponding viewconfig
                   (if fewer viewconfigs than structures, cycles through them)
+            options: Optional dict with display options. Supported fields:
+                - normalize: bool, whether to normalize coordinates
+                - center: bool, whether to center the structure
 
         Examples:
             Widget(structure1)
@@ -157,6 +163,7 @@ class Widget(anywidget.AnyWidget):
             Widget(structure1, structure2, viewconfig={'color': 'red'})
             Widget(s1, s2, s3, viewconfig=[vc1, vc2, vc3])
             Widget(s1, s2, s3, viewconfig=[vc1])  # vc1 used for all three
+            Widget(structure1, options={'normalize': True, 'center': False})
         """
         if not structures:
             raise ValueError("At least one structure must be provided")
@@ -168,6 +175,10 @@ class Widget(anywidget.AnyWidget):
             viewconfigs_list = [viewconfig]
         else:
             viewconfigs_list = list(viewconfig)
+
+        # Handle options default
+        if options is None:
+            options = {}
 
         # Convert all structures to Arrow bytes
         processed_structures = []
@@ -187,5 +198,5 @@ class Widget(anywidget.AnyWidget):
             vc_index = i % len(viewconfigs_list)
             matched_viewconfigs.append(viewconfigs_list[vc_index])
 
-        super().__init__(structures=processed_structures, viewconfigs=matched_viewconfigs)
+        super().__init__(structures=processed_structures, viewconfigs=matched_viewconfigs, options=options)
 

@@ -18,16 +18,12 @@ import * as uchi from "https://esm.sh/uchimata@^0.3.x";
 export default {
   /** @type {import("npm:@anywidget/types@0.1.6").Render<Model>} */
   render({ model, el }) {
-    const options = {
-      center: false,
-      normalize: false,
-    };
-
     //~ create a scene
     let chromatinScene = uchi.initScene();
 
     const structures = model.get("structures");
     const viewconfigs = model.get("viewconfigs");
+    const options = model.get("options");
 
     //~ displayable structure = structure + viewconfig
     const displayableStructures = [];
@@ -48,12 +44,22 @@ export default {
       scale: 0.01,
     };
 
+    const defaultOptions = {
+      center: true,
+      normalize: true,
+    };
+
+    const opts = (options === undefined) ? defaultOptions : {
+      center: options.center ?? defaultOptions.center,
+      normalize: options.normalize ?? defaultOptions.normalize,
+    };
+
     for (const ds of displayableStructures) {
       console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
       const vc = (ds.viewConfig === undefined)
         ? defaultViewConfig
         : ds.viewConfig;
-      const structure = uchi.load(ds.structure.buffer, options);
+      const structure = uchi.load(ds.structure.buffer, opts);
       chromatinScene = uchi.addStructureToScene(
         chromatinScene,
         structure,
