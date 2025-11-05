@@ -135,7 +135,7 @@ class Widget(anywidget.AnyWidget):
     # ViewConfig: defines how the 3D structure will be shown
     viewconfigs = traitlets.List().tag(sync=True)
 
-    def __init__(self, *structures, viewconfigs=None):
+    def __init__(self, *structures, viewconfig=None):
         """
         Create a widget with one or more 3D structures.
 
@@ -144,7 +144,7 @@ class Widget(anywidget.AnyWidget):
                 - 2D numpy array: [[x, y, z], ...]
                 - pandas dataframe: columns need to be 'x', 'y', 'z'
                 - Apache Arrow bytes
-            viewconfigs: Optional viewconfig(s). Can be:
+            viewconfig: Optional viewconfig(s). Can be:
                 - None: uses default empty viewconfig for all structures
                 - dict: same viewconfig applied to all structures
                 - list of dicts: each structure gets corresponding viewconfig
@@ -152,22 +152,22 @@ class Widget(anywidget.AnyWidget):
 
         Examples:
             Widget(structure1)
-            Widget(structure1, viewconfigs={'color': 'red'})
+            Widget(structure1, viewconfig={'color': 'red'})
             Widget(structure1, structure2, structure3)
-            Widget(structure1, structure2, viewconfigs={'color': 'red'})
-            Widget(s1, s2, s3, viewconfigs=[vc1, vc2, vc3])
-            Widget(s1, s2, s3, viewconfigs=[vc1])  # vc1 used for all three
+            Widget(structure1, structure2, viewconfig={'color': 'red'})
+            Widget(s1, s2, s3, viewconfig=[vc1, vc2, vc3])
+            Widget(s1, s2, s3, viewconfig=[vc1])  # vc1 used for all three
         """
         if not structures:
             raise ValueError("At least one structure must be provided")
 
-        # Normalize viewconfigs to a list
-        if viewconfigs is None:
+        # Normalize viewconfig to a list
+        if viewconfig is None:
             viewconfigs_list = [{}]
-        elif isinstance(viewconfigs, dict):
-            viewconfigs_list = [viewconfigs]
+        elif isinstance(viewconfig, dict):
+            viewconfigs_list = [viewconfig]
         else:
-            viewconfigs_list = list(viewconfigs)
+            viewconfigs_list = list(viewconfig)
 
         # Convert all structures to Arrow bytes
         processed_structures = []
