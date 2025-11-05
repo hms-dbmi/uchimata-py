@@ -19,23 +19,21 @@ export default {
   /** @type {import("npm:@anywidget/types@0.1.6").Render<Model>} */
   render({ model, el }) {
     const options = {
-      center: true,
-      normalize: true,
+      center: false,
+      normalize: false,
     };
 
     //~ create a scene
     let chromatinScene = uchi.initScene();
 
-    //~ process input
-    /** @type {DataView} */
-    const structure = model.get("structure");
-    const viewConfig = model.get("viewconfig");
+    const structures = model.get("structures");
+    const viewconfigs = model.get("viewconfigs");
 
     //~ displayable structure = structure + viewconfig
-    const displayableStructures = [{
-      structure: structure,
-      viewConfig: viewConfig,
-    }];
+    const displayableStructures = [];
+    for (const [i, s] of structures.entries()) {
+      displayableStructures.push({ structure: s, viewConfig: viewconfigs[i] });
+    }
 
     if (
       displayableStructures.length === 0 ||
@@ -43,24 +41,23 @@ export default {
     ) {
       console.error("suplied structure is UNDEFINED");
     }
-    console.log(viewConfig);
-    // const chunkOrModel = uchi.load(structure.buffer, options); //~ TODO: better name for this variable
 
     /** @type {import("http://localhost:5173/src/main.ts").ViewConfig} */
     const defaultViewConfig = {
+      color: "red",
       scale: 0.01,
     };
 
-    const viewConfigNotSupplied = viewConfig === undefined ||
-      Object.keys(viewConfig).length === 0;
-    const vc = viewConfigNotSupplied ? defaultViewConfig : viewConfig;
-
     for (const ds of displayableStructures) {
       console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+      const vc = (ds.viewConfig === undefined)
+        ? defaultViewConfig
+        : ds.viewConfig;
+      const structure = uchi.load(ds.structure.buffer, options);
       chromatinScene = uchi.addStructureToScene(
         chromatinScene,
-        uchi.load(ds.structure.buffer, options),
-        ds.viewConfig,
+        structure,
+        vc,
       );
     }
 

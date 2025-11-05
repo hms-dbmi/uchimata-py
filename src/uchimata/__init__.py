@@ -129,28 +129,63 @@ def from_pandas_dataframe(df):
 
 class Widget(anywidget.AnyWidget):
     _esm = pathlib.Path(__file__).parent / "static" / "widget.js"
-    # _css = pathlib.Path(__file__).parent / "static" / "widget.css"
 
     # 3D structure input: assumes Apache Arrow format
-    structure = traitlets.Bytes().tag(sync=True)
-    structure2 = traitlets.Bytes().tag(sync=True)
+    structures = traitlets.List().tag(sync=True)
     # ViewConfig: defines how the 3D structure will be shown
-    viewconfig = traitlets.Dict().tag(sync=True)
-    viewconfig2 = traitlets.Dict().tag(sync=True)
+    viewconfigs = traitlets.List().tag(sync=True)
 
-    def __init__(self, structure, viewconfig={}):
+    def __init__(self, *structures, viewconfigs=None):
         """
-        What types of data we expect:
-        - 2D numpy array: [[x, y, z], ...]
-        - pandas dataframe: columns need to be 'x', 'y', 'z'
+        Create a widget with one or more 3D structures.
+
+        Args:
+            *structures: One or more structure inputs. Each can be:
+                - 2D numpy array: [[x, y, z], ...]
+                - pandas dataframe: columns need to be 'x', 'y', 'z'
+                - Apache Arrow bytes
+            viewconfigs: Optional viewconfig(s). Can be:
+                - None: uses default empty viewconfig for all structures
+                - dict: same viewconfig applied to all structures
+                - list of dicts: each structure gets corresponding viewconfig
+                  (if fewer viewconfigs than structures, cycles through them)
+
+        Examples:
+            Widget(structure1)
+            Widget(structure1, viewconfigs={'color': 'red'})
+            Widget(structure1, structure2, structure3)
+            Widget(structure1, structure2, viewconfigs={'color': 'red'})
+            Widget(s1, s2, s3, viewconfigs=[vc1, vc2, vc3])
+            Widget(s1, s2, s3, viewconfigs=[vc1])  # vc1 used for all three
         """
-        if isinstance(structure, np.ndarray):
-            # is a numpy array
-            super().__init__(structure=from_numpy(structure), viewconfig=viewconfig)
-        elif isinstance(structure, pd.DataFrame):
-            # is a pandas dataframe
-            super().__init__(structure=from_pandas_dataframe(structure), viewconfig=viewconfig)
+        if not structures:
+            raise ValueError("At least one structure must be provided")
+
+        # Normalize viewconfigs to a list
+        if viewconfigs is None:
+            viewconfigs_list = [{}]
+        elif isinstance(viewconfigs, dict):
+            viewconfigs_list = [viewconfigs]
         else:
-            # is something else (assume Arrow as Bytes)
-            super().__init__(structure=structure, viewconfig=viewconfig)
+            viewconfigs_list = list(viewconfigs)
+
+        # Convert all structures to Arrow bytes
+        processed_structures = []
+        for structure in structures:
+            if isinstance(structure, np.ndarray):
+                processed_structures.append(from_numpy(structure))
+            elif isinstance(structure, pd.DataFrame):
+                processed_structures.append(from_pandas_dataframe(structure))
+            else:
+                # Assume Arrow as Bytes
+                processed_structures.append(structure)
+
+        # Match structures with viewconfigs (cycle through viewconfigs if needed)
+        matched_viewconfigs = []
+        for i in range(len(processed_structures)):
+            # Cycle through viewconfigs if there are fewer than structures
+            vc_index = i % len(viewconfigs_list)
+            matched_viewconfigs.append(viewconfigs_list[vc_index])
+
+        super().__init__(structures=processed_structures, viewconfigs=matched_viewconfigs)
 
