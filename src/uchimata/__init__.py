@@ -133,8 +133,10 @@ class Widget(anywidget.AnyWidget):
 
     # 3D structure input: assumes Apache Arrow format
     structure = traitlets.Bytes().tag(sync=True)
+    structure2 = traitlets.Bytes().tag(sync=True)
     # ViewConfig: defines how the 3D structure will be shown
     viewconfig = traitlets.Dict().tag(sync=True)
+    viewconfig2 = traitlets.Dict().tag(sync=True)
 
     def __init__(self, structure, viewconfig={}):
         """

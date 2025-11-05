@@ -30,48 +30,39 @@ export default {
     /** @type {DataView} */
     const structure = model.get("structure");
     const viewConfig = model.get("viewconfig");
-    if (structure === undefined) {
+
+    //~ displayable structure = structure + viewconfig
+    const displayableStructures = [{
+      structure: structure,
+      viewConfig: viewConfig,
+    }];
+
+    if (
+      displayableStructures.length === 0 ||
+      displayableStructures[0].structure === undefined
+    ) {
       console.error("suplied structure is UNDEFINED");
     }
     console.log(viewConfig);
-    const chunkOrModel = uchi.load(structure.buffer, options); //~ TODO: better name for this variable
-
-    //const isModel = "parts" in chunkOrModel; //~ ChromatinModel has .parts
+    // const chunkOrModel = uchi.load(structure.buffer, options); //~ TODO: better name for this variable
 
     /** @type {import("http://localhost:5173/src/main.ts").ViewConfig} */
     const defaultViewConfig = {
       scale: 0.01,
     };
 
-    //if (isModel) {
-    //  defaultViewConfig = {
-    //    scale: 0.008,
-    //  };
-    //} else {
-    //  //~ this config specifies how the 3D model will look
-    //  const binsNum = chunkOrModel.bins.length;
-    //  const sequenceValues = Array.from({ length: binsNum }, (_, i) => i);
-    //  defaultViewConfig = {
-    //    scale: 0.01,
-    //    color: {
-    //      values: sequenceValues,
-    //      min: 0,
-    //      max: binsNum - 1,
-    //      colorScale: "viridis",
-    //    },
-    //    links: true,
-    //  };
-    //}
-
     const viewConfigNotSupplied = viewConfig === undefined ||
       Object.keys(viewConfig).length === 0;
     const vc = viewConfigNotSupplied ? defaultViewConfig : viewConfig;
 
-    chromatinScene = uchi.addStructureToScene(
-      chromatinScene,
-      chunkOrModel,
-      vc,
-    );
+    for (const ds of displayableStructures) {
+      console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+      chromatinScene = uchi.addStructureToScene(
+        chromatinScene,
+        uchi.load(ds.structure.buffer, options),
+        ds.viewConfig,
+      );
+    }
 
     const [renderer, canvas] = uchi.display(chromatinScene, {
       alwaysRedraw: false,
