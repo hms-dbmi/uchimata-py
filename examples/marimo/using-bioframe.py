@@ -36,7 +36,7 @@ def _(merged_table_bytes, uchi):
 
     cutModel = uchi.cut(merged_table_bytes)
     # w3 = uchi.Widget(structure=merged_table_bytes, viewconfig=vc)
-    w3 = uchi.Widget(structure=cutModel, viewconfig=vc)
+    w3 = uchi.Widget(cutModel, viewconfig=vc)
     w3
     return cutModel, w3
 
@@ -209,7 +209,7 @@ def _(merged_table_bytes, uchi):
     }
 
     # cutModel = uchi.cut(merged_table_bytes)
-    w4 = uchi.Widget(structure=merged_table_bytes, viewconfig=vc4)
+    w4 = uchi.Widget(merged_table_bytes, viewconfig=vc4)
     # w3 = uchi.Widget(structure=cutModel, viewconfig=vc)
     w4
     return
@@ -228,7 +228,7 @@ def _(cutModel, uchi):
     }
 
     # cutModel2 = uchi.cut(merged_table_bytes)
-    w5 = uchi.Widget(structure=cutModel, viewconfig=vc5)
+    w5 = uchi.Widget(cutModel, viewconfig=vc5)
     w5
     return
 
@@ -252,7 +252,7 @@ def _(merged_table_bytes, uchi):
     }
 
     # cutModel2 = uchi.cut(merged_table_bytes)
-    uchi.Widget(structure=uchi.select(merged_table_bytes, "chr f"), viewconfig=vc6)
+    uchi.Widget(uchi.select(merged_table_bytes, "chr f"), viewconfig=vc6)
     return
 
 
