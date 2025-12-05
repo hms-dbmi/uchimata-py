@@ -5,13 +5,6 @@
 - GEO: [GSE80280](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE80280)
 - Organism: Mus musculus
 
-<div align="center">
-  
-|List of structures (with links)|
-| :---: |
-| [structures.md](./structures.md) |
-
-</div>
 
 ---
 
@@ -24,12 +17,3 @@ Run the notebook for data processing using [juv](https://github.com/manzt/juv).
 cd stevens-2017
 juv run notebook.ipynb
 ```
-
----
-
-TODO:
-- [x] make it a model:
-    - [x] store bin chromosomes
-    - [x] store bin coordinates
-        - [ ] make sure coordinates are correct
-- [ ] figure out what the multiple structures in single PDB mean
