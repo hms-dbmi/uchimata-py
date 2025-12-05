@@ -23,7 +23,7 @@ def _(model, uchi):
         "links": True,
     }
 
-    w1 = uchi.Widget(structure=model, viewconfig=vc1)
+    w1 = uchi.Widget(model, viewconfig=vc1)
     w1
     return (vc1,)
 
@@ -32,7 +32,7 @@ def _(model, uchi):
 def _(model, uchi):
     # Selecting via chromosome names
     model_chr1 = uchi.select(model, "chr a")
-    w3 = uchi.Widget(structure=model_chr1, viewconfig={"color": "crimson", "links": True})
+    w3 = uchi.Widget(model_chr1, viewconfig={"color": "crimson", "links": True})
     w3
     return
 
@@ -48,7 +48,7 @@ def _(bioframe, model, uchi, vc1):
         name_col='chrom')
 
     submodel = uchi.select_bioframe(model, df3)
-    w2 = uchi.Widget(structure=submodel, viewconfig=vc1)
+    w2 = uchi.Widget(submodel, viewconfig=vc1)
     w2
     return
 

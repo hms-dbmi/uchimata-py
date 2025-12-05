@@ -32,31 +32,31 @@ def _(mo):
 
 @app.cell
 def _(model, uchi, vc1):
-    uchi.Widget(structure=model, viewconfig=vc1)
+    uchi.Widget(model, viewconfig=vc1)
     return
 
 
 @app.cell
 def _(model2, uchi, vc1):
-    uchi.Widget(structure=model2, viewconfig=vc1)
+    uchi.Widget(model2, viewconfig=vc1)
     return
 
 
 @app.cell
 def _(model3, uchi, vc1):
-    uchi.Widget(structure=model3, viewconfig=vc1)
+    uchi.Widget(model3, viewconfig=vc1)
     return
 
 
 @app.cell
 def _(model4, uchi):
-    w4 = uchi.Widget(structure=uchi.select(model4, "chr f"), viewconfig={"color": "crimson", "links": True})
+    w4 = uchi.Widget(uchi.select(model4, "chr f"), viewconfig={"color": "crimson", "links": True})
     return (w4,)
 
 
 @app.cell
 def _(model5, uchi):
-    w5 = uchi.Widget(structure=uchi.select(model5, "chr f"), viewconfig={"color": "mediumseagreen", "links": True})
+    w5 = uchi.Widget(uchi.select(model5, "chr f"), viewconfig={"color": "mediumseagreen", "links": True})
     return (w5,)
 
 

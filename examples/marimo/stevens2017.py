@@ -44,19 +44,19 @@ def _(model1, uchi):
         "scale": 0.005, "links": True, "mark": "sphere"
     }
 
-    uchi.Widget(structure=model1, viewconfig=vc)
+    uchi.Widget(model1, viewconfig=vc)
     return (vc,)
 
 
 @app.cell
 def _(model2, uchi, vc):
-    uchi.Widget(structure=model2, viewconfig=vc)
+    uchi.Widget(model2, viewconfig=vc)
     return
 
 
 @app.cell
 def _(model3, uchi, vc):
-    uchi.Widget(structure=model3, viewconfig=vc)
+    uchi.Widget(model3, viewconfig=vc)
     return
 
 
