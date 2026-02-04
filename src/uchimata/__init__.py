@@ -336,3 +336,18 @@ class Widget(anywidget.AnyWidget):
 
         super().__init__(structures=processed_structures, viewconfigs=matched_viewconfigs, options=options)
 
+    def screenshot(self, path=None, width=None, height=None, scale=1):
+        """Capture a screenshot of the current view.
+
+        Args:
+          path: If provided, saves to file. If None, returns bytes.
+          width: Target width in pixels (optional)
+          height: Target height in pixels (optional)
+          scale: Pixel density multiplier (default: 1)
+
+        Returns:
+          PNG bytes if path is None, otherwise None
+        """
+        print("screenshot...................")
+        self.send({"type": "screenshot", "scaling": 2.0})
+

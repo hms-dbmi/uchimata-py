@@ -72,6 +72,14 @@ export default {
     });
     el.appendChild(canvas);
 
+    model.on("msg:custom", (msg) => {
+      if (msg.type === "screenshot") {
+        console.log("received msg:custom");
+        console.log("heyyyyy");
+        renderer.screenshot();
+      }
+    });
+
     return () => {
       // Optionally cleanup
       renderer.endDrawing();

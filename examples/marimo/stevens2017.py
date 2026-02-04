@@ -56,7 +56,14 @@ def _(model2, uchi, vc):
 
 @app.cell
 def _(model3, uchi, vc):
-    uchi.Widget(model3, viewconfig=vc)
+    w = uchi.Widget(model3, viewconfig=vc)
+    w
+    return (w,)
+
+
+@app.cell
+def _(w):
+    w.screenshot("test.png")
     return
 
 
